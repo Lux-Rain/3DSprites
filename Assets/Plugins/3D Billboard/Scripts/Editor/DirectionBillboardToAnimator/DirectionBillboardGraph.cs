@@ -85,9 +85,18 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             List<AnimationClip> clips = new List<AnimationClip>();
 
             //Create Animation
-
-            foreach(DirectionBillboardNode node in nodes)
+            if(nodes.Count == 0)
             {
+                EditorUtility.DisplayDialog("No Node","No Node to convert", "I Understand");
+                return;
+            }
+            foreach (DirectionBillboardNode node in nodes)
+            {
+                if(node.animation == null)
+                {
+                    EditorUtility.DisplayDialog("No animation", "Some node don't have animation", "I Understand");
+                    return;
+                }
                 foreach(DirectionalSprite.Direction direction in node.animation.directions)
                 {
                     AnimationClip clip = new AnimationClip();
@@ -149,13 +158,21 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                 DirectionBillboardNode node = (DirectionBillboardNode)nodes[i];
                 AnimatorStateMachine stateMachine = rootStateMachine.AddStateMachine(node.animation.name);
                 controller.AddParameter(node.animation.name, AnimatorControllerParameterType.Trigger);
-                AnimatorState baseState = stateMachine.AddState("Base");
+                AnimatorState baseState = stateMachine.AddState("Base", new Vector3(0,  600));
                 for (int x = 0; x < node.animation.directions.Count; x++)
                 {
                     DirectionalSprite.Direction direction = node.animation.directions[x];
                     string name = node.animation.name + "_" + direction.angleStart + "_" + direction.angleEnd;
                     AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path + name + ".anim");
-                    AnimatorState state = stateMachine.AddState(name);
+                    
+                    float radians = (((float)x/(node.animation.directions.Count))*360f) * Mathf.Deg2Rad;
+                    Debug.Log(((float)x / (node.animation.directions.Count)) * 360f);
+                    var cos = Mathf.Cos(radians);
+                    var sin = Mathf.Sin(radians);
+                    Vector3 pos = new Vector3(0, 600);
+                    pos+= new Vector3(cos, sin) * 300;
+
+                    AnimatorState state = stateMachine.AddState(name, pos);
                     state.motion = clip;
 
                     var transition = AddTransition(state ,baseState);

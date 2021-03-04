@@ -266,7 +266,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &526845724
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -476,6 +476,7 @@ GameObject:
   m_Component:
   - component: {fileID: 720154498}
   - component: {fileID: 720154497}
+  - component: {fileID: 720154499}
   m_Layer: 0
   m_Name: Character (1)
   m_TagString: Untagged
@@ -512,6 +513,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &720154499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 720154496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1063ea9b0e957e45b5593dbf5aeeb5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lookAtTag: Player
+  sprite: {fileID: 1869040075}
+  direction: {fileID: 575024581}
+  animator: {fileID: 1869040074}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -1076,7 +1093,7 @@ Animator:
   m_GameObject: {fileID: 1869040072}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 5a9d07a91702c28499c3b797fb1f7d78, type: 2}
+  m_Controller: {fileID: 9100000, guid: e08ac21ebfd010d46b829224bacf15ef, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0

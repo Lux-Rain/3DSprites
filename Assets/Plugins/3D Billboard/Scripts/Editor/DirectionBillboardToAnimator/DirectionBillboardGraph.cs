@@ -148,6 +148,8 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             {
                 DirectionBillboardNode node = (DirectionBillboardNode)nodes[i];
                 AnimatorStateMachine stateMachine = rootStateMachine.AddStateMachine(node.animation.name);
+                controller.AddParameter(node.animation.name, AnimatorControllerParameterType.Trigger);
+                AnimatorState baseState = stateMachine.AddState("Base");
                 for (int x = 0; x < node.animation.directions.Count; x++)
                 {
                     DirectionalSprite.Direction direction = node.animation.directions[x];
@@ -155,12 +157,30 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                     AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path + name + ".anim");
                     AnimatorState state = stateMachine.AddState(name);
                     state.motion = clip;
+
+                    var transition = AddTransition(state ,baseState);
+                    transition.AddCondition(AnimatorConditionMode.Greater, direction.angleEnd, "angle");
+                    
+                    transition = AddTransition(state, baseState);
+                    transition.AddCondition(AnimatorConditionMode.Less,direction.angleStart,"angle");
+
+                    transition = AddTransition(baseState ,state);
+                    transition.AddCondition(AnimatorConditionMode.Greater, direction.angleStart, "angle");
+                    transition.AddCondition(AnimatorConditionMode.Less, direction.angleEnd, "angle");
                 }
             }
 
             AssetDatabase.SaveAssets();
 
 
+        }
+
+        public AnimatorStateTransition AddTransition(AnimatorState baseState, AnimatorState endState)
+        {
+            var transition = baseState.AddTransition(endState);
+            transition.duration = 0;
+            transition.hasExitTime = false;
+            return transition;
         }
 
         protected void GenerateMiniMap()

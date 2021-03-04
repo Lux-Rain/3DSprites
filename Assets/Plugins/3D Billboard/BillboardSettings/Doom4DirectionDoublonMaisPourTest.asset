@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: beea47ce7d59c4f4299106b4f8534565, type: 3}
+  m_Name: Doom4DirectionDoublonMaisPourTest
+  m_EditorClassIdentifier: 
+  directions:
+  - angleStart: -45
+    angleEnd: 45
+    order: 0
+    sprites:
+    - {fileID: -4816072441768048377, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -2223704759146390970, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -9207987098296514082, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -6178703996860048965, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    invertSprites: 0
+  - angleStart: 45.000004
+    angleEnd: 135
+    order: 0
+    sprites:
+    - {fileID: -3414145095733659316, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -6772730512241428836, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: 2673002565610341339, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -406190317742096353, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    invertSprites: 0
+  - angleStart: -135
+    angleEnd: -45
+    order: 0
+    sprites:
+    - {fileID: -3414145095733659316, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -6772730512241428836, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: 2673002565610341339, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -406190317742096353, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    invertSprites: 1
+  - angleStart: -180
+    angleEnd: -135
+    order: 0
+    sprites:
+    - {fileID: -6702453665226802317, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -4680693536738919346, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: 2000011914596792020, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -3675042241610918833, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    invertSprites: 0
+  - angleStart: 135
+    angleEnd: 180
+    order: 0
+    sprites:
+    - {fileID: -6702453665226802317, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -4680693536738919346, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: 2000011914596792020, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    - {fileID: -3675042241610918833, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+    invertSprites: 0
+  waitTime: 0.15
+  loop: 1
+  resetFrameWhenChangeDirection: 0

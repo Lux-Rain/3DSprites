@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: beea47ce7d59c4f4299106b4f8534565, type: 3}
-  m_Name: Doom4DirectionDoublonMaisPourTest
+  m_Name: DoomIdle
   m_EditorClassIdentifier: 
   directions:
   - angleStart: -45

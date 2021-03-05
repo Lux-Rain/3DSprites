@@ -7,6 +7,7 @@ using System;
 using UnityEditor.Experimental.GraphView;
 using System.Collections.Generic;
 using UnityEditor.Animations;
+using System.Linq;
 
 namespace Com.DiazTeo.DirectionalSpriteEditor
 {   
@@ -83,7 +84,8 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
         {
             List<Node> nodes = _graphView.nodes.ToList();
             List<AnimationClip> clips = new List<AnimationClip>();
-
+            Dictionary<DirectionBillboardNode, AnimatorStateMachine> nodesStates = new Dictionary<DirectionBillboardNode, AnimatorStateMachine>();
+            Dictionary<DirectionBillboardNode, List<AnimatorState>> nodesStatesAnim = new Dictionary<DirectionBillboardNode, List<AnimatorState>>();
             //Create Animation
             if(nodes.Count == 0)
             {
@@ -156,9 +158,17 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             for (int i = 0; i < nodes.Count; i++)
             {
                 DirectionBillboardNode node = (DirectionBillboardNode)nodes[i];
-                AnimatorStateMachine stateMachine = rootStateMachine.AddStateMachine(node.animation.name);
+                float stateRadian = (((float)i / (nodes.Count)) * 360f) * Mathf.Deg2Rad;
+                float stateX = Mathf.Cos(stateRadian); ;
+                float stateY = Mathf.Sin(stateRadian); ;
+                Vector3 statePos = Vector3.zero;
+                statePos += new Vector3(stateX, stateY) * 300;
+
+                AnimatorStateMachine stateMachine = rootStateMachine.AddStateMachine(node.animation.name, statePos);
                 controller.AddParameter(node.animation.name, AnimatorControllerParameterType.Trigger);
                 AnimatorState baseState = stateMachine.AddState("Base", new Vector3(0,  600));
+                nodesStates.Add(node, stateMachine);
+                List<AnimatorState> states = new List<AnimatorState>();
                 for (int x = 0; x < node.animation.directions.Count; x++)
                 {
                     DirectionalSprite.Direction direction = node.animation.directions[x];
@@ -166,7 +176,6 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                     AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path + name + ".anim");
                     
                     float radians = (((float)x/(node.animation.directions.Count))*360f) * Mathf.Deg2Rad;
-                    Debug.Log(((float)x / (node.animation.directions.Count)) * 360f);
                     var cos = Mathf.Cos(radians);
                     var sin = Mathf.Sin(radians);
                     Vector3 pos = new Vector3(0, 600);
@@ -174,19 +183,60 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
 
                     AnimatorState state = stateMachine.AddState(name, pos);
                     state.motion = clip;
-
+                    states.Add(state);
                     var transition = AddTransition(state ,baseState);
                     transition.AddCondition(AnimatorConditionMode.Greater, direction.angleEnd, "angle");
                     
                     transition = AddTransition(state, baseState);
                     transition.AddCondition(AnimatorConditionMode.Less,direction.angleStart,"angle");
 
+
                     transition = AddTransition(baseState ,state);
                     transition.AddCondition(AnimatorConditionMode.Greater, direction.angleStart, "angle");
                     transition.AddCondition(AnimatorConditionMode.Less, direction.angleEnd, "angle");
                 }
+                nodesStatesAnim.Add(node, states);
             }
 
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                DirectionBillboardNode node = (DirectionBillboardNode)nodes[i];
+                AnimatorStateMachine stateMachine = null;
+                nodesStates.TryGetValue(node, out stateMachine);
+
+                for (int y = 0; y < node.ports.Count; y++)
+                {
+                    Port port = node.ports[y];
+                    if(port.direction == UnityEditor.Experimental.GraphView.Direction.Input)
+                    {
+                        continue;
+                    }
+                    List<Edge> edges = port.connections.ToList();
+                    List<AnimatorState> states = new List<AnimatorState>();
+                    nodesStatesAnim.TryGetValue(node, out states);
+                    for (int x = 0; x < edges.Count; x++)
+                    {
+                        DirectionBillboardNode endNode = (DirectionBillboardNode)edges[x].input.node;
+                        if (endNode == port.node)
+                        {
+                            continue;
+                        }
+                        AnimatorStateMachine endStateMachine = null;
+                        nodesStates.TryGetValue(endNode, out endStateMachine);
+                        var transition = rootStateMachine.AddStateMachineTransition(stateMachine ,endStateMachine);
+                        transition.AddCondition(AnimatorConditionMode.If, 1, endNode.animation.name);
+
+                        foreach(AnimatorState state in states)
+                        {
+                            AnimatorStateTransition trans = state.AddExitTransition();
+                            trans.duration = 0;
+                            trans.hasExitTime = false;
+                            trans.AddCondition(AnimatorConditionMode.If, 1, endNode.animation.name);
+                        }
+                    }
+                }
+
+            }
             AssetDatabase.SaveAssets();
 
 

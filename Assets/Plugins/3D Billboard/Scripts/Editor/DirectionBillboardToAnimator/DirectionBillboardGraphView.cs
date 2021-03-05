@@ -27,7 +27,9 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
 
         private Port GeneratePort(DirectionBillboardNode node, UnityEditor.Experimental.GraphView.Direction portDirection, Port.Capacity capacity)
         {
-            return node.InstantiatePort(Orientation.Horizontal, portDirection, capacity, typeof(float));
+            Port port = node.InstantiatePort(Orientation.Horizontal, portDirection, capacity, typeof(float));
+            node.ports.Add(port);
+            return port;
         }
 
         public void CreateNode(DirectionalBillboard anim, Rect position)

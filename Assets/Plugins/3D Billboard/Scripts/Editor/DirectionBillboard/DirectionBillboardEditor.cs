@@ -1,9 +1,9 @@
 using DiazTeo.Editor.Utils;
-using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Com.DiazTeo.DirectionalSprite;
+using UnityEditor.Animations;
 
 namespace Com.DiazTeo.DirectionalSpriteEditor
 {
@@ -49,6 +49,9 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
         protected int currentFrame = 0;
 
         protected SerializedObject settings;
+
+        protected AnimatorController animator;
+
         public void RegisterUndo(string name)
         {
             Undo.RegisterCompleteObjectUndo(billboard, name);
@@ -107,9 +110,117 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             ShowDirection();
             ShowSprites(currentAngle);
             serializedObject.ApplyModifiedProperties();
+            if(GUI.Button(EditorGUILayout.GetControlRect(), "Convert To Animation"))
+            {
+                Export();
+            }
+            EditorGUI.BeginChangeCheck();
+            AnimatorController newAnimator = EditorGUILayout.ObjectField("Current Animator", animator, typeof(AnimatorController), false) as AnimatorController;
+            if (EditorGUI.EndChangeCheck())
+            {
+                RegisterUndo("Change Current Animator");
+                animator = newAnimator;
+                serializedObject.ApplyModifiedProperties();
+            }
         }
 
+        private void Export()
+        {
+            List<AnimationClip> clips = new List<AnimationClip>();
 
+            foreach (Direction direction in billboard.directions)
+            {
+                AnimationClip clip = new AnimationClip();
+                clip.name = billboard.name + "_" + direction.angleStart + "_" + direction.angleEnd;
+                clip.wrapMode = billboard.loop ? WrapMode.Loop : WrapMode.Default;
+                AnimationClipSettings settings = new AnimationClipSettings();
+                settings.loopTime = billboard.loop;
+                AnimationUtility.SetAnimationClipSettings(clip, settings);
+                clip.ClearCurves();
+                if (direction.sprites.Count != 0)
+                {
+                    EditorCurveBinding curveBinding = new EditorCurveBinding();
+                    curveBinding.type = typeof(SpriteRenderer);
+                    curveBinding.path = "";
+                    curveBinding.propertyName = "m_Sprite";
+                    ObjectReferenceKeyframe[] keyFrames = new ObjectReferenceKeyframe[direction.sprites.Count];
+                    for (int i = 0; i < direction.sprites.Count; i++)
+                    {
+                        Sprite sprite = direction.sprites[i];
+                        keyFrames[i] = new ObjectReferenceKeyframe();
+                        keyFrames[i].time = i * billboard.waitTime;
+                        keyFrames[i].value = sprite;
+
+                    }
+                    AnimationUtility.SetObjectReferenceCurve(clip, curveBinding, keyFrames);
+                }
+                clips.Add(clip);
+            }
+
+            string path = EditorUtility.SaveFilePanelInProject("Export Animations", "animations", "", "Export Animations");
+            if (path == "")
+                return;
+
+            foreach (AnimationClip clip in clips)
+            {
+                string clipPath = path + clip.name + ".anim";
+                AssetDatabase.CreateAsset(clip, clipPath);
+            }
+
+            AssetDatabase.SaveAssets();
+
+            AnimatorController controller = null;
+            AnimatorStateMachine rootStateMachine = null;
+
+            if (animator == null)
+            {
+                controller = AnimatorController.CreateAnimatorControllerAtPath(path + ".controller");
+                controller.AddParameter("angle", AnimatorControllerParameterType.Float);
+            } else
+            {
+                controller = animator;
+            }
+            rootStateMachine = controller.layers[0].stateMachine;
+            AnimatorStateMachine stateMachine = rootStateMachine.AddStateMachine(billboard.name, Vector3.zero);
+            AnimatorState baseState = stateMachine.AddState("Base", new Vector3(0, 600));
+            for (int x = 0; x < billboard.directions.Count; x++)
+            {
+                DirectionalSprite.Direction direction = billboard.directions[x];
+                string name = billboard.name + "_" + direction.angleStart + "_" + direction.angleEnd;
+                AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path + name + ".anim");
+
+                float radians = (((float)x / (billboard.directions.Count)) * 360f) * Mathf.Deg2Rad;
+                var cos = Mathf.Cos(radians);
+                var sin = Mathf.Sin(radians);
+                Vector3 pos = new Vector3(0, 600);
+                pos += new Vector3(cos, sin) * 300;
+
+                AnimatorState state = stateMachine.AddState(name, pos);
+                state.motion = clip;
+                var transition = AddTransition(state, baseState);
+                transition.AddCondition(AnimatorConditionMode.Greater, direction.angleEnd, "angle");
+
+                transition = AddTransition(state, baseState);
+                transition.AddCondition(AnimatorConditionMode.Less, direction.angleStart, "angle");
+
+
+                transition = AddTransition(baseState, state);
+                transition.AddCondition(AnimatorConditionMode.Greater, direction.angleStart, "angle");
+                transition.AddCondition(AnimatorConditionMode.Less, direction.angleEnd, "angle");
+            }
+
+
+            AssetDatabase.SaveAssets();
+
+        }
+
+        public AnimatorStateTransition AddTransition(AnimatorState baseState, AnimatorState endState)
+        {
+            var transition = baseState.AddTransition(endState);
+            transition.duration = 0;
+            transition.hasExitTime = false;
+            return transition;
+        }
 
         private void ShowDirection()
         {

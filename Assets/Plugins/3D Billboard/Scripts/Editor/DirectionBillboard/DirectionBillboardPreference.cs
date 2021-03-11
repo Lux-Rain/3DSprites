@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Windows;
-using System;
 
 namespace Com.DiazTeo.DirectionalSpriteEditor
 {

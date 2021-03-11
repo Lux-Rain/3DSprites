@@ -1,0 +1,18 @@
+{
+    "name": "DirectionalSpriteEditor",
+    "rootNamespace": "Com.DiazTeo.DirectionalSpriteEditor",
+    "references": [
+        "GUID:c15537cc4439fe445a37a7d0f7cb0190"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

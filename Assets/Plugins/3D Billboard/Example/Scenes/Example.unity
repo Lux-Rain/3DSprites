@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 526845725}
   - component: {fileID: 526845724}
   m_Layer: 0
-  m_Name: Character
+  m_Name: CharacterScriptable
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -478,7 +478,7 @@ GameObject:
   - component: {fileID: 720154497}
   - component: {fileID: 720154499}
   m_Layer: 0
-  m_Name: Character (1)
+  m_Name: CharacterAnimator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

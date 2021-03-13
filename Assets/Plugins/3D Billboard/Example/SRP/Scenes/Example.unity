@@ -282,7 +282,7 @@ MonoBehaviour:
   lookAtTag: Player
   sprite: {fileID: 1917901410}
   direction: {fileID: 291257159}
-  billboardSettings: {fileID: 0}
+  billboardSettings: {fileID: 11400000, guid: 180223bef4f9b0b4d9b9c9aa4e74f973, type: 2}
 --- !u!136 &526845725
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -305,7 +305,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 526845723}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.5, z: 0}
+  m_LocalPosition: {x: 1.32, y: 1.5, z: -0.81}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 291257160}
@@ -626,7 +626,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8448d424f7b5b4f4a8cafdb56787b81f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  center: {fileID: 526845726}
+  center: {fileID: 720154498}
   radius: 5
   radiusSpeed: 17.91
 --- !u!1 &1188352836
@@ -1093,7 +1093,7 @@ Animator:
   m_GameObject: {fileID: 1869040072}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 051082d9360323f46a289efde4388003, type: 2}
+  m_Controller: {fileID: 9100000, guid: 92864f73ae8cc98458dc79fa8d309780, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -1178,7 +1178,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1917901408}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.355, z: 0}
+  m_LocalPosition: {x: 0, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 291257160}
@@ -1224,7 +1224,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -6702453665226802317, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}
+  m_Sprite: {fileID: 21300000, guid: dc3e2d156ae3b1e4e97c2e0e6e07afc6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0

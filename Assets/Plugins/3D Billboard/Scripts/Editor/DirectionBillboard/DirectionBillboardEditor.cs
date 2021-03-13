@@ -49,7 +49,6 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
         protected int currentFrame = 0;
 
         protected SerializedObject settings;
-
         protected AnimatorController animator;
 
         public void RegisterUndo(string name)
@@ -110,7 +109,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             ShowDirection();
             ShowSprites(currentAngle);
             serializedObject.ApplyModifiedProperties();
-            if(GUI.Button(EditorGUILayout.GetControlRect(), "Convert To Animation"))
+            if (GUI.Button(EditorGUILayout.GetControlRect(), "Convert To Animation"))
             {
                 Export();
             }
@@ -139,6 +138,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                 clip.ClearCurves();
                 if (direction.sprites.Count != 0)
                 {
+                    //Set Keyframes
                     EditorCurveBinding curveBinding = new EditorCurveBinding();
                     curveBinding.type = typeof(SpriteRenderer);
                     curveBinding.path = "";
@@ -153,6 +153,14 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
 
                     }
                     AnimationUtility.SetObjectReferenceCurve(clip, curveBinding, keyFrames);
+
+                    //Set FlipX
+                    AnimationCurve curve = direction.invertSprites
+                        ? AnimationCurve.Constant(0, (direction.sprites.Count) * billboard.waitTime, 1)
+                        : AnimationCurve.Constant(0, direction.sprites.Count * billboard.waitTime, 0);
+
+                    clip.SetCurve("", typeof(SpriteRenderer), "m_FlipX", curve);
+
                 }
                 clips.Add(clip);
             }
@@ -172,20 +180,24 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             AnimatorController controller = null;
             AnimatorStateMachine rootStateMachine = null;
 
-            if (animator == null)
+            switch (animator)
             {
-                controller = AnimatorController.CreateAnimatorControllerAtPath(path + ".controller");
-                controller.AddParameter("angle", AnimatorControllerParameterType.Float);
-            } else
-            {
-                controller = animator;
+                case null:
+                    controller = AnimatorController.CreateAnimatorControllerAtPath(path + ".controller");
+                    controller.AddParameter("angle", AnimatorControllerParameterType.Float);
+                    break;
+                default:
+                    controller = animator;
+                    break;
             }
+
             rootStateMachine = controller.layers[0].stateMachine;
             AnimatorStateMachine stateMachine = rootStateMachine.AddStateMachine(billboard.name, Vector3.zero);
             AnimatorState baseState = stateMachine.AddState("Base", new Vector3(0, 600));
+
             for (int x = 0; x < billboard.directions.Count; x++)
             {
-                DirectionalSprite.Direction direction = billboard.directions[x];
+                Direction direction = billboard.directions[x];
                 string name = billboard.name + "_" + direction.angleStart + "_" + direction.angleEnd;
                 AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path + name + ".anim");
 
@@ -208,13 +220,10 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                 transition.AddCondition(AnimatorConditionMode.Greater, direction.angleStart, "angle");
                 transition.AddCondition(AnimatorConditionMode.Less, direction.angleEnd, "angle");
             }
-
-
             AssetDatabase.SaveAssets();
-
         }
 
-        public AnimatorStateTransition AddTransition(AnimatorState baseState, AnimatorState endState)
+        protected AnimatorStateTransition AddTransition(AnimatorState baseState, AnimatorState endState)
         {
             var transition = baseState.AddTransition(endState);
             transition.duration = 0;
@@ -222,7 +231,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             return transition;
         }
 
-        private void ShowDirection()
+        protected void ShowDirection()
         {
             showAllDirection = EditorGUILayout.Toggle("Show All Direction", showAllDirection);
             if (!showAllDirection)
@@ -235,7 +244,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             }
         }
 
-        private void ChangeVariable()
+        protected void ChangeVariable()
         {
             EditorGUI.BeginChangeCheck();
             float waitTime = EditorGUILayout.FloatField("Wait Time", spWaitTime.floatValue);
@@ -251,7 +260,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             }
         }
 
-        public void ShowSprites(float angle)
+        protected void ShowSprites(float angle)
         {
             int index = 0;
             if (CheckDirectionList(angle, out index))
@@ -309,7 +318,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             {
                 RegisterUndo("Create Direction");
                 Direction direction = new Direction();
-                direction.AngleStart = currentAngle - 20; 
+                direction.AngleStart = currentAngle - 20;
                 direction.AngleEnd = currentAngle + 20;
                 serializedObject.ApplyModifiedProperties();
                 direction.AngleStart = billboard.GetNewAngleStart(direction, direction.angleStart);
@@ -352,7 +361,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             return false;
         }
 
-        public void DoSpriteView()
+        protected void DoSpriteView()
         {
             EditorGUILayout.Space();
             EditorGUILayout.Space();
@@ -385,7 +394,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             }
         }
 
-        public void DoSpriteViewForeground()
+        protected void DoSpriteViewForeground()
         {
             Color backgroundColor = Contents.proBackgroundColor;
             if (!UnityEditor.EditorGUIUtility.isProSkin)
@@ -405,7 +414,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             Handles.color = Color.white;
 
             EditorGUI.BeginChangeCheck();
-            
+
             Quaternion rot = Quaternion.AngleAxis(currentAngle, Vector3.forward);
             Vector3 dir;
             if (directionSettings == 0)
@@ -448,8 +457,6 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                 currentAngle = newAngle;
                 serializedObject.ApplyModifiedProperties();
             }
-
-
         }
 
         protected void DoDirectionRangeGUI()
@@ -468,7 +475,8 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                 if (directionSettings == 0)
                 {
                     dir = (Quaternion.AngleAxis(angleBegin, Vector3.forward) * Vector3.down);
-                } else
+                }
+                else
                 {
                     dir = (Quaternion.AngleAxis(angleBegin, Vector3.forward) * Vector3.up);
                 }
@@ -492,9 +500,8 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                 {
                     RegisterUndo("Change Angle");
                     billboard.directions[i].AngleStart = billboard.GetNewAngleStart(billboard.directions[i], newAngleBegin);
-                    billboard.directions[i].AngleEnd = billboard.GetNewAngleEnd(billboard.directions[i],newAngleEnd);
+                    billboard.directions[i].AngleEnd = billboard.GetNewAngleEnd(billboard.directions[i], newAngleEnd);
                     serializedObject.ApplyModifiedProperties();
-
                 }
             }
         }

@@ -69,11 +69,6 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             EditorApplication.update = Update;
         }
 
-        private void OnDisable()
-        {
-            EditorApplication.update = null;
-        }
-
         public void Update()
         {
             t += Time.deltaTime;
@@ -104,15 +99,20 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             }
             ChangeVariable();
             EditorGUILayout.Space();
+
             //Sprites
             EditorGUILayoutUtility.DrawHeader(Contents.spritesLabel);
             ShowDirection();
             ShowSprites(currentAngle);
             serializedObject.ApplyModifiedProperties();
+
+
             if (GUI.Button(EditorGUILayout.GetControlRect(), "Convert To Animation"))
             {
                 Export();
             }
+
+            //Animator
             EditorGUI.BeginChangeCheck();
             AnimatorController newAnimator = EditorGUILayout.ObjectField("Current Animator", animator, typeof(AnimatorController), false) as AnimatorController;
             if (EditorGUI.EndChangeCheck())
@@ -375,7 +375,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                 //Draw background
                 Color backgroundRangeColor = Contents.proBackgroundRangeColor;
 
-                if (!UnityEditor.EditorGUIUtility.isProSkin)
+                if (!EditorGUIUtility.isProSkin)
                 {
                     backgroundRangeColor.a = 0.1f;
                 }
@@ -397,7 +397,7 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
         protected void DoSpriteViewForeground()
         {
             Color backgroundColor = Contents.proBackgroundColor;
-            if (!UnityEditor.EditorGUIUtility.isProSkin)
+            if (!EditorGUIUtility.isProSkin)
             {
                 backgroundColor = Contents.defaultBackgroundColor;
             }
@@ -414,22 +414,15 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             Handles.color = Color.white;
 
             EditorGUI.BeginChangeCheck();
-
             Quaternion rot = Quaternion.AngleAxis(currentAngle, Vector3.forward);
-            Vector3 dir;
-            if (directionSettings == 0)
-            {
-                dir = rot * Vector3.down;
-            }
-            else
-            {
-                dir = rot * Vector3.up;
-            }
+            Vector3 dir = directionSettings == 0 ? rot * Vector3.down : rot * Vector3.up;
             dir.Normalize();
+
             Vector3 pos = (Vector3)m_SpriteViewRect.center + dir * Contents.handleRadius;
             pos = Handles.Slider2D(pos, Vector3.forward, Vector3.up, Vector3.right, 10, Handles.DotHandleCap, 1f);
 
             float distance = Vector3.Distance(pos, m_SpriteViewRect.center);
+            
             if (distance > Contents.handleRadius || distance < Contents.handleRadius) //If the distance is less than the radius, it is already within the circle.
             {
                 Vector3 fromOriginToObject = pos - (Vector3)m_SpriteViewRect.center; //~GreenPosition~ - *BlackCenter*
@@ -442,14 +435,16 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
             pos -= (Vector3)m_SpriteViewRect.center;
 
             float newAngle;
-            if (directionSettings == 0)
+
+            switch (directionSettings)
             {
-                newAngle = Vector3.SignedAngle(Vector3.up, direction, Vector3.forward);
-            }
-            else
-            {
-                newAngle = Vector3.SignedAngle(Vector3.down, direction, Vector3.forward);
-                newAngle *= -1;
+                case 0:
+                    newAngle = Vector3.SignedAngle(Vector3.up, direction, Vector3.forward);
+                    break;
+                default:
+                    newAngle = Vector3.SignedAngle(Vector3.down, direction, Vector3.forward);
+                    newAngle *= -1;
+                    break;
             }
 
             if (EditorGUI.EndChangeCheck())
@@ -465,21 +460,14 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
 
             for (int i = billboard.directions.Count - 1; i >= 0; i--)
             {
-
                 Color color = Color.Lerp(Contents.proColor1, Contents.proColor2, (float)i / (billboard.directions.Count - 1));
                 Handles.color = color;
                 float angleBegin = billboard.directions[i].AngleStart;
                 float angleEnd = billboard.directions[i].AngleEnd;
                 float angle = angleEnd - angleBegin;
-                Vector3 dir;
-                if (directionSettings == 0)
-                {
-                    dir = (Quaternion.AngleAxis(angleBegin, Vector3.forward) * Vector3.down);
-                }
-                else
-                {
-                    dir = (Quaternion.AngleAxis(angleBegin, Vector3.forward) * Vector3.up);
-                }
+                Vector3 dir = directionSettings == 0
+                    ? Quaternion.AngleAxis(angleBegin, Vector3.forward) * Vector3.down
+                    : Quaternion.AngleAxis(angleBegin, Vector3.forward) * Vector3.up;
                 Handles.DrawSolidArc(m_SpriteViewRect.center, Vector3.forward, dir, angle, Contents.spritePreviewRadius);
             }
         }
@@ -504,49 +492,45 @@ namespace Com.DiazTeo.DirectionalSpriteEditor
                     serializedObject.ApplyModifiedProperties();
                 }
             }
+
         }
 
         private float CreateHandler(float angle)
         {
-            Texture icon = Resources.Load("handleIcon") as Texture;
             int directionSettings = settings.FindProperty("currentDirection").enumValueIndex;
 
             float ang;
             Quaternion rot = Quaternion.AngleAxis(angle, Vector3.forward);
-            Vector3 dir;
-            if (directionSettings == 0)
-            {
-                dir = rot * Vector3.down;
-            }
-            else
-            {
-                dir = rot * Vector3.up;
+            Vector3 dir = directionSettings == 0 ? rot * Vector3.down : rot * Vector3.up;
 
-            }
             dir.Normalize();
             Vector3 pos = (Vector3)m_SpriteViewRect.center + dir * Contents.handleRadius;
             float distance = Vector3.Distance(pos, m_SpriteViewRect.center);
-            if (distance > Contents.handleRadius || distance < Contents.handleRadius) //If the distance is less than the radius, it is already within the circle.
+
+            if (distance > Contents.handleRadius || distance < Contents.handleRadius)
             {
-                Vector3 fromOriginToObject = pos - (Vector3)m_SpriteViewRect.center; //~GreenPosition~ - *BlackCenter*
-                fromOriginToObject *= Contents.handleRadius / distance; //Multiply by radius //Divide by Distance
-                pos = (Vector3)m_SpriteViewRect.center + fromOriginToObject; //*BlackCenter* + all that Math
+                Vector3 fromOriginToObject = pos - (Vector3)m_SpriteViewRect.center;
+                fromOriginToObject *= Contents.handleRadius / distance;
+                pos = (Vector3)m_SpriteViewRect.center + fromOriginToObject;
             }
+
             pos = Handles.Slider2D(pos, Vector3.forward, Vector3.up, Vector3.right, 10, Handles.DotHandleCap, 1f);
 
             Vector3 direction = (Vector3)m_SpriteViewRect.center - pos;
             direction.Normalize();
             pos -= (Vector3)m_SpriteViewRect.center;
 
-            if (directionSettings == 0)
+            switch (directionSettings)
             {
-                ang = Vector3.SignedAngle(Vector3.up, direction, Vector3.forward);
+                case 0:
+                    ang = Vector3.SignedAngle(Vector3.up, direction, Vector3.forward);
+                    break;
+                default:
+                    ang = Vector3.SignedAngle(Vector3.down, direction, Vector3.forward);
+                    ang *= -1;
+                    break;
             }
-            else
-            {
-                ang = Vector3.SignedAngle(Vector3.down, direction, Vector3.forward);
-                ang *= -1;
-            }
+
             return ang;
         }
     }

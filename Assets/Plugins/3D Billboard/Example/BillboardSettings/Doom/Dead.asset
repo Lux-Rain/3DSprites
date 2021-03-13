@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   directions:
   - angleStart: -180
-    angleEnd: 180
+    angleEnd: 179.99994
     order: 0
     sprites:
     - {fileID: 6559448186929917835, guid: b9ca7a36fd93a314b9e5ac348ce9c4cd, type: 3}

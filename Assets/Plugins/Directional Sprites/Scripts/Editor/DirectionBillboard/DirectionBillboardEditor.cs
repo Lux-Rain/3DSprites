@@ -7,7 +7,6 @@ using UnityEditor.Animations;
 
 namespace Com.DiazTeo.DirectionalSpriteEditor
 {
-
     [CustomEditor(typeof(DirectionalBillboard), true)]
     public class DirectionBillboardEditor : Editor
     {
